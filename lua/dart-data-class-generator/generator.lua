@@ -36,7 +36,7 @@ M.generate_copy_with = function()
         local params = {}
         for _, vars in ipairs(variables) do
             for _, var in ipairs(vars.vars) do
-                table.insert(params, vars.type .. "? " .. var)
+                table.insert(params, vars.type_full .. "? " .. var)
             end
         end
         return table.concat(params, ",\n") .. ","
