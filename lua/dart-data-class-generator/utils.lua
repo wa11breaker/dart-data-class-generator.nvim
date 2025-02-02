@@ -30,17 +30,15 @@ M.get_constructor_end_line_no = function()
     local parent_node = current_node:parent()
     if not parent_node then return nil end
 
+    local lang = "dart"
     local bufnr = vim.api.nvim_get_current_buf()
-    local parser = ts.get_parser(bufnr, vim.bo.filetype)
-
-    local lang = parser:lang()
-
     local query_string = [[(constructor_signature) @constructor]]
-    local query = ts.query.parse(lang, query_string)
 
+    local query = ts.query.parse(lang, query_string)
     for _, match, _ in query:iter_matches(parent_node, bufnr, 0, -1) do
         local node = match[1]
         if node then
+            ---@diagnostic disable-next-line: undefined-field
             local _, _, end_row, _ = node:range()
             return end_row + 1
         end

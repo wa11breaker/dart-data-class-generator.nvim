@@ -24,8 +24,7 @@ M.get_class_info = function()
     local parent_node = currentNode:parent()
     if not parent_node then return nil end
 
-    local parser = ts.get_parser()
-    local lang = parser:lang()
+    local lang = "dart"
     local query_string = [[
     (declaration
       (function_type

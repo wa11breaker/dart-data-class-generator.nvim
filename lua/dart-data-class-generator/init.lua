@@ -5,10 +5,16 @@ local utils = require("dart-data-class-generator.utils")
 local generator = require("dart-data-class-generator.generator")
 
 local M = {}
+M.opts = {}
 
-function M.setup()
+local defaults = {
+    enable_code_actions = true,
+}
+
+local function setup_code_actions()
+    null_ls.setup()
     null_ls.register({
-        name = "flutter-bloc",
+        name = "data-class-generator",
         method = null_ls.methods.CODE_ACTION,
         filetypes = { "dart" },
         generator = {
@@ -16,6 +22,7 @@ function M.setup()
                 local out = {}
                 local node = ts.get_node()
 
+                print("node", node)
                 if utils.is_valid_node(node) then
                     table.insert(out, {
                         title  = "Generate Constructor",
@@ -33,6 +40,13 @@ function M.setup()
 
         }
     })
+end
+
+function M.setup(options)
+    M.opts = vim.tbl_deep_extend("force", {}, defaults, options or {})
+    if M.opts.enable_code_actions then
+        setup_code_actions()
+    end
 end
 
 return M
