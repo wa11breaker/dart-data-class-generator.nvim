@@ -31,6 +31,11 @@ M.generate_copy_with = function()
     local class_info = parser.get_class_info()
     if not class_info then return end
 
+    local start_line = utils.get_constructor_end_line_no()
+    if not start_line then
+        start_line = class_info.line_number
+    end
+
     ---@param variables VariableDeclaration[]
     local function generate_parameter_list(variables)
         local params = {}
@@ -68,7 +73,7 @@ M.generate_copy_with = function()
         generate_constructor_args(class_info.variables)
     )
 
-    utils.write_widget(result, class_info.bufnr, class_info.line_number)
+    utils.write_widget(result, class_info.bufnr, start_line)
 end
 
 return M
