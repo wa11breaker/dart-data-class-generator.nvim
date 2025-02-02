@@ -21,7 +21,8 @@ end
 M.is_valid_node = function(node)
     if not node then return false end
 
-    return node:type() == "identifier" or node:type() == "type_identifier"
+    local parent = node:parent()
+    return node:type() == "identifier" and parent:type() == "class_definition"
 end
 
 return M
