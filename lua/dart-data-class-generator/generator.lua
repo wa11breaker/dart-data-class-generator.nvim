@@ -24,7 +24,7 @@ M.generate_constructor = function()
         generate_parameter_list(class_info.variables)
     )
 
-    utils.write_widget(result, class_info)
+    utils.write_widget(result, class_info.bufnr, class_info.line_number)
 end
 
 M.generate_copy_with = function()
@@ -68,7 +68,7 @@ M.generate_copy_with = function()
         generate_constructor_args(class_info.variables)
     )
 
-    utils.write_widget(result, class_info)
+    utils.write_widget(result, class_info.bufnr, class_info.line_number)
 end
 
 return M
