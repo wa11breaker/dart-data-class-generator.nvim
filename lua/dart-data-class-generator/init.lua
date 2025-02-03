@@ -22,7 +22,6 @@ local function setup_code_actions()
                 local out = {}
                 local node = ts.get_node()
 
-                print("node", node)
                 if utils.is_valid_node(node) then
                     table.insert(out, {
                         title  = "Generate Constructor",
@@ -32,6 +31,11 @@ local function setup_code_actions()
                     table.insert(out, {
                         title  = "Generate copyWith",
                         action = generator.generate_copy_with
+                    })
+
+                    table.insert(out, {
+                        title  = "Generate toJson",
+                        action = generator.generate_to_json
                     })
                 end
 

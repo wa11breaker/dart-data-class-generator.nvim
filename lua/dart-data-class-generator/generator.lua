@@ -76,4 +76,54 @@ M.generate_copy_with = function()
     utils.write_widget(result, class_info.bufnr, start_line)
 end
 
+-- factory CollectionsModel.fromJson(Map<String, dynamic> json) {
+--   return CollectionsModel(
+--     id: json['id'] as String,
+--     name: json['name'] as String,
+--     age: json['age'] as int,
+--     addresses: json['addresses'] as List<String>?,
+--     metadata: json['metadata'] as Map<String, dynamic>,
+--   );
+-- }
+M.generate_to_json = function()
+    local class_info = parser.get_class_info()
+    if not class_info then return end
+
+    ---@param variables VariableDeclaration[]
+    ---@return string
+    local function generate_parameter_list(variables)
+        ---@type string[]
+        local result = {}
+
+        for _, variable in ipairs(variables) do
+            for _, var in ipairs(variable.vars) do
+                local is_nullable = variable.is_nullable
+                local nullable_suffix = is_nullable and "?" or ""
+                local value = string.format("json['%s'] as %s%s", var, variable.type_full, nullable_suffix)
+                table.insert(result, string.format("%s: %s", var, value))
+            end
+        end
+
+        return table.concat(result, ",\n")
+    end
+
+    local template = string.format(
+        [[
+        factory %s.fromJson(Map<String, dynamic> json) {
+          return %s(
+            %s,
+          );
+        }
+        ]],
+        class_info.name,
+        class_info.name,
+        generate_parameter_list(class_info.variables)
+    )
+    local result = string.format(
+        template,
+        generate_parameter_list(class_info.variables)
+    )
+    utils.write_widget(result, class_info.bufnr, class_info.line_number)
+end
+
 return M

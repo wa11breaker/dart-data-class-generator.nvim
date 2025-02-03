@@ -6,9 +6,9 @@
 
 - [x] Constructor Generation
 - [ ] fromMap/toMap Methods
-- [ ] copyWith Method
+- [x] copyWith Method
 - [ ] Equality Methods
-- [ ]toString Method
+- [ ] toString Method
 
 ## Installation
 

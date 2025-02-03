@@ -23,7 +23,6 @@ M.write_widget = function(snippet, bufnr, line_number)
 end
 
 M.get_constructor_end_line_no = function()
-    -- Get the current node under the cursor
     local current_node = ts.get_node()
     if not current_node then return nil end
 
