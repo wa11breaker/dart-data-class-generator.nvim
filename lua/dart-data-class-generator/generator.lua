@@ -80,6 +80,11 @@ M.generate_from_json = function()
     local class_info = parser.get_class_info()
     if not class_info then return end
 
+    local start_line = utils.get_constructor_end_line_no()
+    if not start_line then
+        start_line = class_info.line_number
+    end
+
     ---@param variables VariableDeclaration[]
     ---@return string
     local function generate_parameter_list(variables)
@@ -106,6 +111,7 @@ M.generate_from_json = function()
             %s,
           );
         }
+
         ]],
         class_info.name,
         class_info.name,
@@ -115,22 +121,17 @@ M.generate_from_json = function()
         template,
         generate_parameter_list(class_info.variables)
     )
-    utils.write_widget(result, class_info.bufnr, class_info.line_number)
+    utils.write_widget(result, class_info.bufnr, start_line)
 end
 
--- Map<String, dynamic> toJson() {
---   return {
---     'code': code,
---     'name': name,
---     'id': id,
---     'category': category,
---     'iconUrl': iconUrl,
---     'uniqueId': uniqueId,
---   };
--- }
 M.generate_to_json = function()
     local class_info = parser.get_class_info()
     if not class_info then return end
+
+    local start_line = utils.get_constructor_end_line_no()
+    if not start_line then
+        start_line = class_info.line_number
+    end
 
     ---@param variables VariableDeclaration[]
     ---@return string
@@ -165,6 +166,7 @@ M.generate_to_json = function()
             %s,
           };
         }
+
         ]],
         generate_map(class_info.variables)
     )
@@ -173,7 +175,7 @@ M.generate_to_json = function()
         template,
         generate_map(class_info.variables)
     )
-    utils.write_widget(result, class_info.bufnr, class_info.line_number)
+    utils.write_widget(result, class_info.bufnr, start_line)
 end
 
 return M
