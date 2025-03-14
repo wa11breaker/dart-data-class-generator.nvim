@@ -1,7 +1,12 @@
 # Dart Data Class Generator for Neovim
+A Neovim plugin that adds lsp support for generates boilerplate code for data classes in Dart.
 
 > **Inspired by**: [Dart Data Class Generator for VS Code](https://marketplace.visualstudio.com/items?itemName=dotup.dart-data-class-generator)
-A Neovim plugin that generates boilerplate code for data classes in Dart.
+
+
+
+https://github.com/user-attachments/assets/33fff9f8-915c-4926-9c14-d49e33e9c76c
+
 
 ## Features
 
