@@ -1,11 +1,12 @@
 # Dart Data Class Generator for Neovim
 
 > **Inspired by**: [Dart Data Class Generator for VS Code](https://marketplace.visualstudio.com/items?itemName=dotup.dart-data-class-generator)
+A Neovim plugin that generates boilerplate code for data classes in Dart.
 
 ## Features
 
 - [x] Constructor Generation
-- [ ] fromMap/toMap Methods
+- [x] fromMap/toMap Methods
 - [x] copyWith Method
 - [ ] Equality Methods
 - [ ] toString Method
