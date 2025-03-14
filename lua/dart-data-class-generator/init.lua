@@ -34,6 +34,11 @@ local function setup_code_actions()
                     })
 
                     table.insert(out, {
+                        title  = "Generate fromJson",
+                        action = generator.generate_from_json
+                    })
+
+                    table.insert(out, {
                         title  = "Generate toJson",
                         action = generator.generate_to_json
                     })

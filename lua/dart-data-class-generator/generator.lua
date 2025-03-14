@@ -76,16 +76,7 @@ M.generate_copy_with = function()
     utils.write_widget(result, class_info.bufnr, start_line)
 end
 
--- factory CollectionsModel.fromJson(Map<String, dynamic> json) {
---   return CollectionsModel(
---     id: json['id'] as String,
---     name: json['name'] as String,
---     age: json['age'] as int,
---     addresses: json['addresses'] as List<String>?,
---     metadata: json['metadata'] as Map<String, dynamic>,
---   );
--- }
-M.generate_to_json = function()
+M.generate_from_json = function()
     local class_info = parser.get_class_info()
     if not class_info then return end
 
@@ -100,6 +91,7 @@ M.generate_to_json = function()
                 local is_nullable = variable.is_nullable
                 local nullable_suffix = is_nullable and "?" or ""
                 local value = string.format("json['%s'] as %s%s", var, variable.type_full, nullable_suffix)
+
                 table.insert(result, string.format("%s: %s", var, value))
             end
         end
@@ -122,6 +114,64 @@ M.generate_to_json = function()
     local result = string.format(
         template,
         generate_parameter_list(class_info.variables)
+    )
+    utils.write_widget(result, class_info.bufnr, class_info.line_number)
+end
+
+-- Map<String, dynamic> toJson() {
+--   return {
+--     'code': code,
+--     'name': name,
+--     'id': id,
+--     'category': category,
+--     'iconUrl': iconUrl,
+--     'uniqueId': uniqueId,
+--   };
+-- }
+M.generate_to_json = function()
+    local class_info = parser.get_class_info()
+    if not class_info then return end
+
+    ---@param variables VariableDeclaration[]
+    ---@return string
+    local function generate_map(variables)
+        ---@type string[]
+        local result = {}
+
+        for _, variable in ipairs(variables) do
+            for _, var in ipairs(variable.vars) do
+                local value = var
+                local is_nullable = variable.is_nullable
+
+                if (utils.is_custom_class(variable.type)) then
+                    if is_nullable then
+                        value = var .. "?.toJson()"
+                    else
+                        value = var .. ".toJson()"
+                    end
+                end
+
+                table.insert(result, string.format("'%s': %s", var, value))
+            end
+        end
+
+        return table.concat(result, ",\n")
+    end
+
+    local template = string.format(
+        [[
+        Map<String, dynamic> toJson() {
+          return {
+            %s,
+          };
+        }
+        ]],
+        generate_map(class_info.variables)
+    )
+
+    local result = string.format(
+        template,
+        generate_map(class_info.variables)
     )
     utils.write_widget(result, class_info.bufnr, class_info.line_number)
 end

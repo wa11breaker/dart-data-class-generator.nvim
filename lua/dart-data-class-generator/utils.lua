@@ -55,4 +55,35 @@ M.is_valid_node = function(node)
     return current == "identifier" and parent == "class_definition"
 end
 
+-- Check if a type is a custom class (not a built-in type)
+---@param type_name string
+---@return boolean
+M.is_custom_class = function(type_name)
+    if not type_name then
+        return false
+    end
+
+    -- List of Dart built-in types
+    local built_in_types = {
+        "int", "double", "String", "bool", "num",
+        "List", "Map", "Set", "Iterable", "Future",
+        "Stream", "dynamic", "void", "Object", "Function"
+    }
+
+    -- Check if type is in the built-in types list
+    for _, built_in_type in ipairs(built_in_types) do
+        if type_name == built_in_type then
+            return false
+        end
+    end
+
+    -- Check first character - custom classes typically start with uppercase
+    local first_char = string.sub(type_name, 1, 1)
+    if first_char == string.upper(first_char) then
+        return true
+    end
+
+    return false
+end
+
 return M
