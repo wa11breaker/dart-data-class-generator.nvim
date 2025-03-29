@@ -1,11 +1,8 @@
-local parser = require("dart-data-class-generator.parser")
-local utils = require("dart-data-class-generator.utils")
-
 local M = {}
 
 ---@param variables VariableDeclaration[]
 ---@return string[]
-local function generate_parameter_list(variables)
+local function get_parameter_list(variables)
     local params = {}
     for _, var in ipairs(variables) do
         local prefix = var.is_nullable and "" or "required "
@@ -19,22 +16,32 @@ local function generate_parameter_list(variables)
     return params
 end
 
----@param class_info ClassInfo
+---@param class_name string
+---@param parameters string[]
 ---@return string
-M.generate_constructor = function(class_info)
-    local paramaters = generate_parameter_list(class_info.variables)
-    local paramater_string = table.concat(paramaters, ",\n") .. ","
+local function get_constructor_template(class_name, parameters)
+    if #parameters == 0 then
+        return string.format("%s();", class_name)
+    end
 
-    local template = string.format([[
-    %s ({
-    %s
-    });
-
-]], class_info.name, paramaters)
-
-    local result = string.format(template, paramater_string)
-    return result
+    local parameter_string = table.concat(parameters, ",\n  ") .. ","
+    return string.format([[%s({
+  %s
+});]], class_name, parameter_string)
 end
 
-M._generate_parameter_list = generate_parameter_list
+
+---@param class_info ClassInfo
+M.generate_constructor = function(class_info)
+    local parameters = get_parameter_list(class_info.variables)
+    local constructor = get_constructor_template(class_info.name, parameters)
+
+    if #parameters == 0 then
+        return constructor
+    end
+    return constructor .. "\n\n"  -- Add a newline to separate the constructor from the class body
+end
+
+M._get_parameter_list = get_parameter_list
+M._get_constructor_template = get_constructor_template
 return M
