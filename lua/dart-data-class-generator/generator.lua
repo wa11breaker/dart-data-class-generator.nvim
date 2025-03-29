@@ -1,29 +1,17 @@
 local parser = require("dart-data-class-generator.parser")
 local utils = require("dart-data-class-generator.utils")
+local constructor = require("dart-data-class-generator.generator.constructor")
 
 local M = {}
 
 M.generate_constructor = function()
     local class_info = parser.get_class_info()
-    if not class_info then return end
-
-    local function generate_parameter_list(variables)
-        local params = {}
-        for _, vars in ipairs(variables) do
-            for _, var in ipairs(vars.vars) do
-                local prefix = vars.is_nullable and "" or "required "
-                table.insert(params, prefix .. "this." .. var)
-            end
-        end
-        return table.concat(params, ",\n") .. ","
+    if not class_info then
+        utils.notify("No class found")
+        return
     end
 
-    local template = string.format("%s ({", class_info.name) .. "\n%s\n});\n\n"
-    local result = string.format(
-        template,
-        generate_parameter_list(class_info.variables)
-    )
-
+    local result = constructor.generate_constructor(class_info)
     utils.write_widget(result, class_info.bufnr, class_info.line_number)
 end
 
