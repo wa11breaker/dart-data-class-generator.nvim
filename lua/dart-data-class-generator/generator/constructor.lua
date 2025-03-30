@@ -36,10 +36,13 @@ M.generate_constructor = function(class_info)
     local parameters = get_parameter_list(class_info.variables)
     local constructor = get_constructor_template(class_info.name, parameters)
 
+    
     if #parameters == 0 then
         return constructor
     end
-    return constructor .. "\n\n"  -- Add a newline to separate the constructor from the class body
+
+    -- Add a newline to separate the constructor from the variables declaration
+    return constructor .. "\n\n"
 end
 
 M._get_parameter_list = get_parameter_list
