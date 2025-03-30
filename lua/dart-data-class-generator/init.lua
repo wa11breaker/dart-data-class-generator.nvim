@@ -9,6 +9,8 @@ M.opts = {}
 
 local defaults = {
     enable_code_actions = true,
+    use_snake_case = false,
+    enable_auto_type_cast = false,
 }
 
 local function setup_code_actions()
