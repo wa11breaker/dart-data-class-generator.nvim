@@ -1,5 +1,4 @@
 local utils = require("dart-data-class-generator.utils")
-local opts = require("dart-data-class-generator").opts
 
 local M = {}
 
@@ -15,25 +14,22 @@ local function get_variable_map_list(variables)
 
         if (utils.is_custom_class(variable.type)) then
             if is_nullable then
-                value = variable.name .. "?.toJson()"
+                value = variable.type_full .. '?.fromJson(json[\'' .. variable.name .. '\'])'
             else
-                value = variable.name .. ".toJson()"
+                value = variable.type_full .. '.fromJson(json[\'' .. variable.name .. '\'])'
+            end
+        else
+            value = 'json[\'' .. variable.name .. '\']' .. ' as ' .. variable.type
+            if is_nullable then
+                value = value .. '?'
             end
         end
 
-        table.insert(result, string.format("'%s': %s", variable.name, value))
+        table.insert(result, string.format("%s: %s", variable.name, value))
     end
 
     return result
 end
-
--- factory User.fromJson(Map<String, dynamic> json) {
---   return User(
---     name: json['name'],
---     email: json['email'],
---     preference: json['preference'],
---   );
--- }
 
 ---@param variables string[]
 ---@param class_name string
@@ -41,9 +37,9 @@ end
 local function get_from_json_template(class_name, variables)
     local map_list = table.concat(variables, ",\n    ")
     local template = [[
-%s.fromJson(Map<String, dynamic> json) {
+factory %s.fromJson(Map<String, dynamic> json) {
   return %s(
-    %s
+    %s,
   );
 }
 ]]
@@ -52,8 +48,7 @@ end
 
 ---@param class_info ClassInfo
 ---@return string
-M.generate_to_json = function(class_info, use_snake_case)
-    print(opts.enable_auto_type_cast)
+M.generate_from_json = function(class_info)
     local map = get_variable_map_list(class_info.variables)
     local to_json_template = get_from_json_template(
         class_info.name,

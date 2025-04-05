@@ -49,7 +49,7 @@ M.generate_to_json = function()
     end
 
     local result = to_json.generate_to_json(class_info)
-    utils.write_widget(result, class_info.bufnr, line_number )
+    utils.write_widget(result, class_info.bufnr, line_number)
 end
 
 M.generate_from_json = function()
@@ -64,8 +64,9 @@ M.generate_from_json = function()
         line_number = class_info.line_number
     end
 
+    -- TODO: use snake case
     local result = from_json.generate_from_json(class_info)
-    utils.write_widget(result, class_info.bufnr, line_number )
+    utils.write_widget(result, class_info.bufnr, line_number)
 end
 
 return M
