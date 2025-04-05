@@ -7,10 +7,11 @@ local ts = vim.treesitter
 ---@field variables VariableDeclaration[]
 
 ---@class VariableDeclaration
----@field type string|nil        -- Basic type (e.g., "int", "Map")
----@field type_full string|nil   -- Full type including generics (e.g., "Map<int, RequestModel>")
----@field is_nullable boolean    -- Whether the type is nullable
----@field vars string[]          -- Variable names, since dart support multiple variables in a single declaration
+---@field name string -- Variable name
+---@field is_nullable boolean -- Whether the type is nullable
+---@field type string|nil -- Basic type (e.g., "int", "Map")
+---@field type_full string|nil -- Full type including generics (e.g., "Map<int, RequestModel>")
+
 
 local M = {}
 
@@ -45,18 +46,20 @@ M.get_class_info = function()
         variables = {},
     }
 
+    --- `variables` is array because dart support multiple variables in a single declaration
     ---@type VariableDeclaration[]
     local variables = {}
 
     local query = ts.query.parse(lang, query_string)
-    for _, match, _ in query:iter_matches(parent_node, 0) do
+    for _, match, _ in query:iter_matches(parent_node, 0, nil, nil, { all = false }) do
         ---@type VariableDeclaration
         local current_variable = {
+            name = "_",
+            is_nullable = false,
             type = nil,
             type_full = nil,
-            is_nullable = false,
-            vars = {},
         }
+
         ---@type string[]
         local current_variable_names = {}
         local type_arguments = nil
@@ -99,8 +102,8 @@ M.get_class_info = function()
         end
 
 
-        if current_variable.type then
-            current_variable.vars = current_variable_names
+        for _, var in ipairs(current_variable_names) do
+            current_variable.name = var
             table.insert(variables, current_variable)
         end
     end

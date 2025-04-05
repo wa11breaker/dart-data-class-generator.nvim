@@ -12,6 +12,7 @@ end
 ---@param line_number number
 M.write_widget = function(snippet, bufnr, line_number)
     local data = vim.split(snippet, "\n", { plain = true })
+    -- TODO: line_number + 1 will throw error if the class is empty
     vim.api.nvim_buf_set_text(
         bufnr,
         line_number + 1, 0,
@@ -34,7 +35,8 @@ M.get_constructor_end_line_no = function()
     local query_string = [[(constructor_signature) @constructor]]
 
     local query = ts.query.parse(lang, query_string)
-    for _, match, _ in query:iter_matches(parent_node, bufnr, 0, -1) do
+
+    for _, match, _ in query:iter_matches(parent_node, bufnr, nil, nil, { all = false }) do
         local node = match[1]
         if node then
             ---@diagnostic disable-next-line: undefined-field
