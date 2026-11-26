@@ -1,10 +1,4 @@
 {
-    "diagnostics.globals": [
-        "vim",
-        "describe",
-        "it"
-    ],
-    "diagnostics.disable": [
-        "undefined-field"
-    ]
+    "runtime.version": "LuaJIT",
+    "diagnostics.globals": ["vim"]
 }

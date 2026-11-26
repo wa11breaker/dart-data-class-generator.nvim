@@ -1,0 +1,81 @@
+*dart-data-class-generator.txt*   Generate data class boilerplate for Dart
+*dart-data-class-generator.nvim*
+
+CONTENTS                                *dart-data-class-generator-contents*
+Configuration                           |dart-data-class-generator-config|
+Project config                          |dart-data-class-generator-project|
+Usage                                   |dart-data-class-generator-usage|
+Generated code                          |dart-data-class-generator-output|
+
+==============================================================================
+CONFIGURATION                           *dart-data-class-generator-config*
+
+Defaults:
+>lua
+    require('dart-data-class-generator').setup({
+      enable_code_actions = true,
+      use_snake_case = false, -- JSON keys in snake_case
+    })
+<
+Requires Neovim 0.11+ and the dart tree-sitter parser.
+
+                                        *dart-data-class-generator-project*
+For per-project options, use a project-local config file ('exrc'). Enable
+it in your init.lua with `vim.o.exrc = true`, then add a .nvim.lua to the
+project root (Nvim asks you to |:trust| it). setup() calls are merged into
+the earlier options, so it only needs the options it changes:
+>lua
+    require('dart-data-class-generator').setup({ use_snake_case = true })
+<
+
+==============================================================================
+USAGE                                   *dart-data-class-generator-usage*
+
+With the cursor anywhere in a class, outside method bodies,
+|vim.lsp.buf.code_action()| offers:
+
+- Generate data class (constructor, copyWith, toJson and fromJson)
+- Generate constructor
+- Generate copyWith
+- Generate toJson
+- Generate fromJson
+- Generate == and hashCode
+
+On widgets (classes extending `...Widget`) only "Generate constructor" is
+offered; it adds `super.key`, and `const` when all fields are final. State
+classes get no actions.
+
+The actions come from a small built-in language server named
+"dart-data-class-generator", so they appear next to those from dartls.
+
+                                                *:DartDataClass*
+:DartDataClass [member]
+                        Generate [member] ("constructor", "copyWith",
+                        "toJson", "fromJson" or "equality") for the class
+                        under the cursor, or all of them without an
+                        argument. Works on any class, widgets included,
+                        and without |dart-data-class-generator-config|.
+
+Members that already exist are replaced. New constructors go at the top of
+the class, other members at the end. The buffer is then formatted by any
+attached LSP client that supports formatting.
+
+==============================================================================
+GENERATED CODE                          *dart-data-class-generator-output*
+
+- Static fields and fields with an initializer are left out.
+- Private fields (`_id`) become a named parameter `id` set in the
+  initializer list.
+- An existing const constructor stays const.
+- JSON conversion handles int, double, num, String, bool, DateTime, Uri,
+  Duration, List, Set, Map and classes with their own fromJson/toJson,
+  including nested and nullable types. Function-typed fields are left out.
+- == compares lists, sets and maps by content: with listEquals, setEquals
+  and mapEquals from package:flutter/foundation.dart in Flutter projects,
+  otherwise with DeepCollectionEquality from package:collection (add it to
+  pubspec.yaml). The import is added when needed.
+- Widgets are recognised by name (`extends ...Widget`).
+- copyWith uses `value ?? this.value`, so it can't set a nullable field
+  back to null.
+
+ vim:tw=78:ts=8:ft=help:norl:
