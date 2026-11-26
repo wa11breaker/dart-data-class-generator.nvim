@@ -1,62 +1,36 @@
-local null_ls = require("null-ls")
-local ts = vim.treesitter
-
-local utils = require("dart-data-class-generator.utils")
-local generator = require("dart-data-class-generator.generator")
+local code_action = require("dart-data-class-generator.code_action")
 
 local M = {}
-M.opts = {}
 
 local defaults = {
     enable_code_actions = true,
-    use_snake_case = false,
-    enable_auto_type_cast = false,
+    use_snake_case = false, -- JSON keys in snake_case: `createdAt` -> 'created_at'
 }
 
-local function setup_code_actions()
-    null_ls.setup()
-    null_ls.register({
-        name = "data-class-generator",
-        method = null_ls.methods.CODE_ACTION,
-        filetypes = { "dart" },
-        generator = {
-            fn = function(_)
-                local out = {}
-                local node = ts.get_node()
+M.opts = vim.deepcopy(defaults)
 
-                if utils.is_valid_node(node) then
-                    table.insert(out, {
-                        title  = "Generate Constructor",
-                        action = generator.generate_constructor,
-                    })
-
-                    table.insert(out, {
-                        title  = "Generate copyWith",
-                        action = generator.generate_copy_with
-                    })
-
-                    table.insert(out, {
-                        title  = "Generate fromJson",
-                        action = generator.generate_from_json
-                    })
-
-                    table.insert(out, {
-                        title  = "Generate toJson",
-                        action = generator.generate_to_json
-                    })
-                end
-
-                return out
-            end
-
-        }
-    })
+local function notify(msg, level)
+    vim.notify(msg, level or vim.log.levels.INFO, { title = "dart-data-class-generator" })
 end
 
+--- Each call is merged into the options of earlier calls, so a project's
+--- .nvim.lua only needs the options it changes.
 function M.setup(options)
-    M.opts = vim.tbl_deep_extend("force", {}, defaults, options or {})
+    M.opts = vim.tbl_deep_extend("force", M.opts, options or {})
     if M.opts.enable_code_actions then
-        setup_code_actions()
+        require("dart-data-class-generator.lsp").setup()
+    end
+end
+
+--- Adds members to the class under the cursor.
+---@param kind? string "constructor", "copyWith", "toJson", "fromJson", or nil for all of them
+function M.generate(kind)
+    if kind and not vim.tbl_contains(code_action.KINDS, kind) then
+        notify("Unknown member '" .. kind .. "'", vim.log.levels.ERROR)
+        return
+    end
+    if not code_action.apply(kind and { kind } or code_action.KINDS, M.opts) then
+        notify("No class under the cursor", vim.log.levels.WARN)
     end
 end
 
